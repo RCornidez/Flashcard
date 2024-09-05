@@ -324,6 +324,16 @@
                 alert('No flashcard set specified. Please go back and select a set.');
             }
 
+            const flashcard = document.getElementById('flashcard');
+
+            // Flip flashcard
+            function toggleFlip() {
+                flashcard.classList.toggle('flipped');
+            }
+
+            flashcard.addEventListener('click', toggleFlip);
+            flashcard.addEventListener('touchend', toggleFlip);
+
             // Theme Toggle
             let darkMode = localStorage.getItem('darkMode');
 
