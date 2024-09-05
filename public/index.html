@@ -287,7 +287,8 @@
 
         // Function to load available flashcard sets
         function loadFlashcardSets() {
-            const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || [];
+            // Retrieve flashcardSets as an object
+            const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || {};
 
             const flashcardSection = document.getElementById('flashcard-sets');
             const availableFlashcardsHeader = document.getElementById('available-flashcards');
@@ -295,17 +296,21 @@
             // Clear previous content
             flashcardSection.innerHTML = '';
 
-            if (flashcardSets.length > 0) {
+            // Convert the object keys to an array and create list items
+            const fileNames = Object.keys(flashcardSets);
+
+            if (fileNames.length > 0) {
                 availableFlashcardsHeader.style.display = 'block'; // Show the header
-                flashcardSets.forEach(set => {
+                fileNames.forEach(fileName => {
                     const listItem = document.createElement('li');
-                    listItem.innerHTML = `<a href="/test?set=${encodeURIComponent(set)}">${set}</a>`;
+                    listItem.innerHTML = `<a href="/test?set=${encodeURIComponent(fileName)}">${fileName}</a>`;
                     flashcardSection.appendChild(listItem);
                 });
             } else {
                 availableFlashcardsHeader.style.display = 'none'; // Hide the header
             }
         }
+
 
         window.onload = loadFlashcardSets;
 
@@ -384,7 +389,7 @@
         });
 
         function handleFiles(event) {
-            const files = event.target.files || event.dataTransfer.files;
+            const files = event.target.files;
             const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || [];
             
             for (const file of files) {
@@ -395,13 +400,21 @@
                     reader.onload = function(e) {
                         try {
                             const data = JSON.parse(e.target.result);
-                            // Assume the data contains an array of flashcards
-                            flashcardSets.push(file.name); // Add the file name as a placeholder
+                            // Retrieve existing flashcardSets or initialize as an empty object
+                            let flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || {};
+
+                            // Add or update the flashcard set in the dictionary
+                            flashcardSets[file.name] = data;
+
+                            // Save the updated dictionary back to localStorage
                             localStorage.setItem('flashcardSets', JSON.stringify(flashcardSets));
-                            loadFlashcardSets(); // Reload the flashcards list
+                            
+                            // Optionally reload the flashcards list (if needed)
+                            loadFlashcardSets(); 
                         } catch (err) {
                             alert('Error processing JSON file.');
                         }
+
                     };
                     reader.readAsText(file);
                 } else {

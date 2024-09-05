@@ -217,19 +217,16 @@
         let totalCards = 0;
         let correctCount = 0;
 
-        // Function to load flashcards
-        async function loadFlashcards(set) {
-            try {
-                const response = await fetch(`/flashcards/${set}`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                flashcards = await response.json();
+        // Function to load flashcards from local storage based on the URI parameter
+        function loadFlashcards(setName) {
+            const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || {};
+            
+            if (flashcardSets[setName]) {
+                flashcards = flashcardSets[setName];
                 totalCards = flashcards.length;
-                loadNextCard();
-            } catch (error) {
-                console.error('Error loading flashcards:', error);
-                alert('Error loading flashcards. Check the console for details.');
+                loadNextCard();  // Load the first card
+            } else {
+                alert('Flashcard set not found.');
             }
         }
 
@@ -254,15 +251,9 @@
             document.getElementById('flashcard').classList.remove('flipped');
         }
 
-        // Function to display the score
-        function displayScore() {
-            const percent = Math.round((correctCount / totalCards) * 100);
-            document.getElementById('score-percent').innerText = `You got ${correctCount} out of ${totalCards} correct (${percent}%)`;
-            document.getElementById('score').style.display = 'block';
-            document.getElementById('retry-incorrect').style.display = incorrect.length > 0 ? 'inline' : 'none';
-            document.getElementById('yes-button').style.display = 'none';
-            document.getElementById('no-button').style.display = 'none';
-        }
+        // Event listeners for answer buttons
+        document.getElementById('yes-button').addEventListener('click', () => handleAnswer(true));
+        document.getElementById('no-button').addEventListener('click', () => handleAnswer(false));
 
         // Function to handle the answer
         function handleAnswer(correct) {
@@ -277,21 +268,22 @@
             loadNextCard();
         }
 
-        // Event listeners for answer buttons
-        document.getElementById('yes-button').addEventListener('click', () => handleAnswer(true));
-        document.getElementById('no-button').addEventListener('click', () => handleAnswer(false));
-
-        // Function to flip the card
-        document.getElementById('flashcard').addEventListener('click', () => {
-            document.getElementById('flashcard').classList.add('flipped');
-        });
+        // Function to display the score
+        function displayScore() {
+            const percent = Math.round((correctCount / totalCards) * 100);
+            document.getElementById('score-percent').innerText = `You got ${correctCount} out of ${totalCards} correct (${percent}%)`;
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('retry-incorrect').style.display = incorrect.length > 0 ? 'inline' : 'none';
+            document.getElementById('yes-button').style.display = 'none';
+            document.getElementById('no-button').style.display = 'none';
+        }
 
         // Event listener for retrying incorrect cards
         document.getElementById('retry-incorrect').addEventListener('click', () => {
             document.getElementById('score').style.display = 'none';
             document.getElementById('yes-button').style.display = 'inline';
             document.getElementById('no-button').style.display = 'inline';
-            
+
             flashcards = incorrect;
             incorrect = [];
             totalCards = flashcards.length;
@@ -307,59 +299,60 @@
             document.getElementById('no-button').style.display = 'inline';
 
             const urlParams = new URLSearchParams(window.location.search);
-            const set = urlParams.get('set');
-            
-            if (set) {
-                loadFlashcards(set);
+            const setName = urlParams.get('set');
+
+            if (setName) {
+                loadFlashcards(setName);
             } else {
                 alert('No flashcard set specified. Please go back and select a set.');
             }
         });
 
+        // Event listener for going home
         document.getElementById('home').addEventListener('click', () => {
             window.location.href = "/";
         });
 
+        // Function to initialize the page
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const set = urlParams.get('set');
-            
-            if (set) {
-                loadFlashcards(set);
+            const setName = urlParams.get('set');
+
+            if (setName) {
+                loadFlashcards(setName);
             } else {
                 alert('No flashcard set specified. Please go back and select a set.');
             }
 
             // Theme Toggle
-            let darkMode = localStorage.getItem('darkMode'); 
+            let darkMode = localStorage.getItem('darkMode');
 
             const darkModeToggle = document.querySelector('#dark-mode-toggle');
 
             const enableDarkMode = () => {
                 document.body.classList.add('darkmode');
                 localStorage.setItem('darkMode', 'enabled');
-            }
+            };
 
             const disableDarkMode = () => {
                 document.body.classList.remove('darkmode');
                 localStorage.setItem('darkMode', null);
-            }
+            };
 
             if (darkMode === 'enabled') {
                 enableDarkMode();
             }
 
             darkModeToggle.addEventListener('click', () => {
-                
-                darkMode = localStorage.getItem('darkMode'); 
-                
+                darkMode = localStorage.getItem('darkMode');
                 if (darkMode !== 'enabled') {
                     enableDarkMode();
-                } else {  
-                    disableDarkMode(); 
+                } else {
+                    disableDarkMode();
                 }
             });
         };
+
     </script>
 </body>
 </html>
