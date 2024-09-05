@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+        box-sizing: border-box;
+        }
+                
+        :root {
+            --clr-light: #fafafa;
+            --clr-dark: #333333;
+            --clr-primary: #256427;
+            --clr-secondary: #71d474;
+            --clr-accent: #ff7750;
+
+            --foreground: var(--clr-dark);
+            --accent: var(--clr-primary);
+            --background: var(--clr-light);
+
+            --ff-title: "Roboto", sans-serif;
+            --ff-body: "Roboto", sans-serif;
+        }
+
+        .darkmode {
+            --clr-light: #fafafa;
+            --clr-dark: #333333;
+            --clr-primary: #256427;
+            --clr-secondary: #71d474;
+            --clr-accent: #ff7750;
+
+            --foreground: var(--clr-light);
+            --accent: var(--clr-secondary);
+            --background: var(--clr-dark);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            background: var(--background);
+            color: var(--foreground);
+            font-family: var(--ff-body);
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--accent);
+            font-size: 1em;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            z-index: 100;
+            top: 1em;
+            right: 1em;
+            color: var(--foreground);
+            border: 2px solid currentColor;
+            padding: 4px;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+        }
+
+        #title {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #logo {
+            height: 60px;
+        }
+
+        #available-flashcards {
+            text-align: start;
+            width: 100%;
+            max-width: 300px;
+            
+        }
+        
+        #available-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #trash {
+            background-color: var(--background);
+            height: 40px;
+            width: 40px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        #trash-icon {
+            color: var(--foreground);
+            padding: 1px;
+        }
+
+
+        #upload-section {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+ 
+        }
+
+        #upload-section h2 {
+            width: 100%;
+            text-align: start;
+        }
+
+        .drop-zone {
+            border: 2px dashed currentColor;
+            color: var(--foreground);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            width: auto;
+            width: 100%;
+            max-width: 300px;
+            background-color: var(--background);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .drop-zone p {
+            margin: 0;
+            max-width: 200px;
+        }
+
+        #format-details {
+            color: currentColor;
+            text-decoration: underline;
+            padding: 10px 0px;
+            max-width: 200px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        #file-upload {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="dark-mode-toggle" class="dark-mode-toggle">
+        <svg width="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496"><path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/></svg>
+    </button>
+
+    <div id="title">
+        <h1>Flashcards</h1>
+        <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.64 39.21">
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: none;
+                  stroke: currentColor;
+                  stroke-miterlimit: 10;
+                }
+              </style>
+            </defs>
+            <g id="Layer_1-2" data-name="Layer_1">
+              <g>
+                <rect class="cls-1" x=".73" y=".66" width="17.63" height="24.06" rx="1.86" ry="1.86" transform="translate(.29 -.22) rotate(1.31)"/>
+                <path class="cls-1" d="M18.49,7.22l7.5,4.48c.88.53,1.17,1.67.64,2.56l-10.43,17.46c-.53.88-1.67,1.17-2.56.64L1.72,25.23c-.55-.33-.87-.9-.91-1.5"/>
+                <path class="cls-1" d="M24.41,17.99l4.48,7.69c.52.89.22,2.03-.67,2.55l-17.57,10.23c-.89.52-2.03.22-2.55-.67L1.1,25.76c-.27-.47-.32-1.01-.17-1.5"/>
+              </g>
+            </g>
+        </svg>
+    </div>
+
+    <div id="available-flashcards">
+        <div id="available-header">
+            <h2>Available Flashcards</h2>
+            <button id="trash">
+                <svg id="trash-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22.33 27.33">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          stroke-linecap: round;
+                        }
+                  
+                        .cls-1, .cls-2 {
+                          fill: none;
+                          stroke: currentColor;
+                          stroke-miterlimit: 10;
+                          stroke-width: .5px;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer_1">
+                      <g>
+                        <path class="cls-2" d="M1.1,3.34h20.13c.47,0,.85.38.85.85v3.7c0,.17-.14.3-.3.3H.55c-.17,0-.3-.14-.3-.3v-3.7c0-.47.38-.85.85-.85Z"/>
+                        <path class="cls-2" d="M7.57,3.34v-1.48c0-.89.72-1.61,1.61-1.61h4.19c.89,0,1.61.72,1.61,1.61v1.48"/>
+                        <path class="cls-2" d="M20.51,8.19v16.89c0,1.1-.9,2-2,2H4.08c-1.1,0-2-.9-2-2V8.19"/>
+                        <line class="cls-1" x1="11.27" y1="11.63" x2="11.27" y2="23.21"/>
+                        <line class="cls-1" x1="6.89" y1="11.63" x2="6.89" y2="23.21"/>
+                        <line class="cls-1" x1="15.78" y1="11.63" x2="15.78" y2="23.21"/>
+                      </g>
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+        <ul id="flashcard-sets">
+            <!-- Flashcard sets will be dynamically inserted here -->
+        </ul>
+    </div>
+
+
+    <div id="upload-section">
+        <h2>Upload Flashcards</h2>
+        <div id="drop-zone" class="drop-zone">
+            <svg id="file-upload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31.81 35.2">
+                <defs>
+                <style>
+                    .cls-1 {
+                    stroke-linecap: round;
+                    }
+            
+                    .cls-1, .cls-2 {
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-linejoin: round;
+                    }
+                </style>
+                </defs>
+                <g id="Layer_1-2" data-name="Layer_1">
+                <g>
+                    <path class="cls-1" d="M13.45,29.75H2.5c-1.1,0-2-.9-2-2V2.5C.5,1.4,1.4.5,2.5.5h13.6l7.12,7.12v8.15"/>
+                    <polygon class="cls-2" points="23.22 7.62 16.1 7.62 16.1 .5 23.22 7.62"/>
+                    <path class="cls-1" d="M5.48,14.47h8.26"/>
+                    <path class="cls-1" d="M5.48,18.22h9.84"/>
+                    <path class="cls-1" d="M5.48,21.96h7.36"/>
+                    <circle class="cls-1" cx="21.8" cy="25.18" r="9.51"/>
+                    <polyline class="cls-1" points="17.73 24.6 22.07 20.26 26.41 24.6 22.07 20.26 22.07 30.13"/>
+                </g>
+                </g>
+            </svg>
+            <p>Drag and drop Flashcards here or click to select</p>
+            <input type="file" id="file-input" accept=".json" multiple hidden>
+        </div>
+    <a id="format-details" href="/format" target="_blank">How to structure your flashcards JSON file</a>
+</div>
+
+    <script>
+
+        // Function to load available flashcard sets
+        function loadFlashcardSets() {
+            const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || [];
+
+            const flashcardSection = document.getElementById('flashcard-sets');
+            const availableFlashcardsHeader = document.getElementById('available-flashcards');
+
+            // Clear previous content
+            flashcardSection.innerHTML = '';
+
+            if (flashcardSets.length > 0) {
+                availableFlashcardsHeader.style.display = 'block'; // Show the header
+                flashcardSets.forEach(set => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<a href="/test?set=${encodeURIComponent(set)}">${set}</a>`;
+                    flashcardSection.appendChild(listItem);
+                });
+            } else {
+                availableFlashcardsHeader.style.display = 'none'; // Hide the header
+            }
+        }
+
+        window.onload = loadFlashcardSets;
+
+        // Theme Toggle
+        let darkMode = localStorage.getItem('darkMode'); 
+
+        const darkModeToggle = document.querySelector('#dark-mode-toggle');
+
+        const enableDarkMode = () => {
+            document.body.classList.add('darkmode');
+            localStorage.setItem('darkMode', 'enabled');
+        }
+
+        const disableDarkMode = () => {
+            document.body.classList.remove('darkmode');
+            localStorage.setItem('darkMode', null);
+        }
+
+        if (darkMode === 'enabled') {
+            enableDarkMode();
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            
+            darkMode = localStorage.getItem('darkMode'); 
+            
+            if (darkMode !== 'enabled') {
+                enableDarkMode();
+            } else {  
+                disableDarkMode(); 
+            }
+        });
+
+        // Clear Flashcards
+
+        const trashButton = document.getElementById('trash')
+
+        trashButton.addEventListener('click', () => {
+            localStorage.removeItem('flashcardSets');
+
+            const availableFlashcardsHeader = document.getElementById('available-flashcards');
+            availableFlashcardsHeader.style.display = 'none';
+
+            const flashcardSection = document.getElementById('flashcard-sets');
+            flashcardSection.innerHTML = '';
+
+            console.log('Cleared stored Flashcards.');
+        })
+
+
+        // File Upload
+        document.getElementById('drop-zone').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('file-input').addEventListener('change', handleFiles, false);
+
+        document.getElementById('drop-zone').addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'copy'; 
+            document.getElementById('drop-zone').classList.add('drag-over');
+        });
+
+        document.getElementById('drop-zone').addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('drop-zone').classList.remove('drag-over');
+        });
+
+        document.getElementById('drop-zone').addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('drop-zone').classList.remove('drag-over');
+            handleFiles(event);
+        });
+
+        function handleFiles(event) {
+            const files = event.target.files || event.dataTransfer.files;
+            const flashcardSets = JSON.parse(localStorage.getItem('flashcardSets')) || [];
+            
+            for (const file of files) {
+                if (file.type === 'application/json') {
+                    console.log(`File selected: ${file.name}`);
+                    // Read and process the file
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            // Assume the data contains an array of flashcards
+                            flashcardSets.push(file.name); // Add the file name as a placeholder
+                            localStorage.setItem('flashcardSets', JSON.stringify(flashcardSets));
+                            loadFlashcardSets(); // Reload the flashcards list
+                        } catch (err) {
+                            alert('Error processing JSON file.');
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert('Please upload only JSON files.');
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>

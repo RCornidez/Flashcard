@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+        box-sizing: border-box;
+        }
+
+        :root {
+            --clr-light: #fafafa;
+            --clr-dark: #333333;
+            --clr-primary: #dbffa2;
+            --clr-secondary: #c3fcf2;
+            --clr-accent: #ff7750;
+
+            --foreground: var(--clr-dark);
+            --background: var(--clr-light);
+
+            --ff-title: "Roboto", sans-serif;
+            --ff-body: "Roboto", sans-serif;
+        }
+
+        .darkmode {
+            --clr-light: #fafafa;
+            --clr-dark: #333333;
+            --clr-primary: #dbffa2;
+            --clr-secondary: #c3fcf2;
+            --clr-accent: #ff7750;
+
+            --foreground: var(--clr-light);
+            --background: var(--clr-dark);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: var(--background);
+            color: var(--foreground);
+            font-family: var(--ff-body);
+        }   
+
+        #buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        #buttons button {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--background);
+            border: 2px solid var(--foreground);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        img {
+            height: 25px;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.75em;
+        }
+
+        p {
+            font-weight: 400;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            z-index: 100;
+            top: 1em;
+            right: 1em;
+            color: var(--foreground);
+            border: 2px solid currentColor;
+            padding: 4px;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+        }
+
+        #flashcard {
+            border-radius: 8px;
+        }
+
+        .card {
+            width: 5in;
+            max-width: 95%;
+            height: 4in; 
+            perspective: 1000px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .card-front {
+            background-color: var(--foreground);
+            padding: 20px;
+            color: var(--background);
+            font-size: 1.75em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .card-back {
+            background: #fef9c3;
+            color: black;
+            display: block;
+            padding: 20px;
+            font-size: 1.2em;
+            transform: rotateY(180deg);
+            overflow-y: scroll;
+            scrollbar-width: none;
+        }
+
+        .card-back::-webkit-scrollbar {
+            display: none;
+        }
+
+        #score {
+            display: none;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        #score button {
+            height: 48px;
+            font-size: 18px;
+            margin: 5px;
+            background-color: var(--background);
+            border: 2px solid var(--foreground);
+            color: currentColor;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="dark-mode-toggle" class="dark-mode-toggle">
+        <svg width="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496"><path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/></svg>
+    </button>
+
+    <div class="card" id="flashcard">
+        <div class="card-inner">
+            <div class="card-side card-front" id="card-front">
+                Loading...
+            </div>
+            <div class="card-side card-back" id="card-back">
+                <p>Back Side</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="buttons">
+        <button id="yes-button">
+            <img src="/assets/correctIcon.svg"/>
+        </button>
+        <button id="no-button">
+            <img src="/assets/incorrectIcon.svg"/>
+        </button>
+    </div>
+    <div id="score">
+        <h2>Score</h2>
+        <p id="score-percent"></p>
+        <button id="retry-incorrect">Retry Incorrect</button>
+        <button id="restart">Restart Fresh</button>
+        <button id="home">Go Home</button>
+    </div>
+
+    <script>
+        let flashcards = [];
+        let currentCard = null;
+        let reviewed = [];
+        let incorrect = [];
+        let totalCards = 0;
+        let correctCount = 0;
+
+        // Function to load flashcards
+        async function loadFlashcards(set) {
+            try {
+                const response = await fetch(`/flashcards/${set}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                flashcards = await response.json();
+                totalCards = flashcards.length;
+                loadNextCard();
+            } catch (error) {
+                console.error('Error loading flashcards:', error);
+                alert('Error loading flashcards. Check the console for details.');
+            }
+        }
+
+        // Function to load the next card
+        function loadNextCard() {
+            if (flashcards.length === 0) {
+                displayScore();
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * flashcards.length);
+            currentCard = flashcards.splice(randomIndex, 1)[0];
+            document.getElementById('card-front').innerText = currentCard.title;
+
+            const formattedDescription = currentCard.description.replace(/\n/g, '<br>');
+
+            if (currentCard.example) {
+                document.getElementById('card-back').innerHTML = `<h2>${currentCard.title}</h2><p>${currentCard.type}</p><p>${formattedDescription}</p><p><b>Example:</b> ${currentCard.example}</p>`;
+            } else {
+                document.getElementById('card-back').innerHTML = `<h2>${currentCard.title}</h2><p>${currentCard.type}</p><p>${formattedDescription}</p>`;
+            }
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        // Function to display the score
+        function displayScore() {
+            const percent = Math.round((correctCount / totalCards) * 100);
+            document.getElementById('score-percent').innerText = `You got ${correctCount} out of ${totalCards} correct (${percent}%)`;
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('retry-incorrect').style.display = incorrect.length > 0 ? 'inline' : 'none';
+            document.getElementById('yes-button').style.display = 'none';
+            document.getElementById('no-button').style.display = 'none';
+        }
+
+        // Function to handle the answer
+        function handleAnswer(correct) {
+            if (correct) {
+                currentCard.answered_correctly = true;
+                correctCount++;
+            } else {
+                currentCard.answered_correctly = false;
+                incorrect.push(currentCard);
+            }
+            reviewed.push(currentCard);
+            loadNextCard();
+        }
+
+        // Event listeners for answer buttons
+        document.getElementById('yes-button').addEventListener('click', () => handleAnswer(true));
+        document.getElementById('no-button').addEventListener('click', () => handleAnswer(false));
+
+        // Function to flip the card
+        document.getElementById('flashcard').addEventListener('click', () => {
+            document.getElementById('flashcard').classList.add('flipped');
+        });
+
+        // Event listener for retrying incorrect cards
+        document.getElementById('retry-incorrect').addEventListener('click', () => {
+            document.getElementById('score').style.display = 'none';
+            document.getElementById('yes-button').style.display = 'inline';
+            document.getElementById('no-button').style.display = 'inline';
+            
+            flashcards = incorrect;
+            incorrect = [];
+            totalCards = flashcards.length;
+            correctCount = 0;
+            reviewed = [];
+            loadNextCard();
+        });
+
+        // Event listener for restarting fresh
+        document.getElementById('restart').addEventListener('click', () => {
+            document.getElementById('score').style.display = 'none';
+            document.getElementById('yes-button').style.display = 'inline';
+            document.getElementById('no-button').style.display = 'inline';
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const set = urlParams.get('set');
+            
+            if (set) {
+                loadFlashcards(set);
+            } else {
+                alert('No flashcard set specified. Please go back and select a set.');
+            }
+        });
+
+        document.getElementById('home').addEventListener('click', () => {
+            window.location.href = "/";
+        });
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const set = urlParams.get('set');
+            
+            if (set) {
+                loadFlashcards(set);
+            } else {
+                alert('No flashcard set specified. Please go back and select a set.');
+            }
+
+            // Theme Toggle
+            let darkMode = localStorage.getItem('darkMode'); 
+
+            const darkModeToggle = document.querySelector('#dark-mode-toggle');
+
+            const enableDarkMode = () => {
+                document.body.classList.add('darkmode');
+                localStorage.setItem('darkMode', 'enabled');
+            }
+
+            const disableDarkMode = () => {
+                document.body.classList.remove('darkmode');
+                localStorage.setItem('darkMode', null);
+            }
+
+            if (darkMode === 'enabled') {
+                enableDarkMode();
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                
+                darkMode = localStorage.getItem('darkMode'); 
+                
+                if (darkMode !== 'enabled') {
+                    enableDarkMode();
+                } else {  
+                    disableDarkMode(); 
+                }
+            });
+        };
+    </script>
+</body>
+</html>

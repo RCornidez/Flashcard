@@ -1,0 +1,62 @@
+[
+    {
+        "title": "Tell me about yourself.",
+        "type": "General",
+        "description": "A chance to provide a summary of your background and experience.",
+        "example": "I have a background in software engineering with a focus on web development. I’ve worked on various projects involving front-end and back-end technologies."
+    },
+    {
+        "title": "Why do you want to work here?",
+        "type": "Motivational",
+        "description": "Helps gauge your interest in the company and alignment with its values.",
+        "example": "I admire the company's commitment to innovation and believe my skills in web development align well with your needs."
+    },
+    {
+        "title": "What are your greatest strengths and weaknesses?",
+        "type": "Self-Assessment",
+        "description": "Assesses your self-awareness and honesty.",
+        "example": "My greatest strength is my attention to detail. A weakness I’m working on is delegating tasks more effectively."
+    },
+    {
+        "title": "Can you describe a challenging project you worked on?",
+        "type": "Behavioral",
+        "description": "Evaluates your problem-solving skills and ability to handle pressure.",
+        "example": "I led a team through a critical system upgrade under tight deadlines, overcoming technical issues and coordinating with stakeholders."
+    },
+    {
+        "title": "How do you handle feedback and criticism?",
+        "type": "Behavioral",
+        "description": "Tests your receptiveness to constructive criticism and adaptability.",
+        "example": "I listen carefully to feedback, use it to improve my skills, and view it as an opportunity for growth."
+    },
+    {
+        "title": "Describe a time when you worked as part of a team.",
+        "type": "Teamwork",
+        "description": "Assesses your ability to collaborate effectively with others.",
+        "example": "I worked on a cross-functional team to develop a new feature, contributing to brainstorming sessions and coordinating with different departments."
+    },
+    {
+        "title": "How do you prioritize tasks when managing multiple projects?",
+        "type": "Organizational",
+        "description": "Evaluates your time management and prioritization skills.",
+        "example": "I use a combination of task management tools and regular check-ins to prioritize tasks based on deadlines and impact."
+    },
+    {
+        "title": "Where do you see yourself in five years?",
+        "type": "Career Goals",
+        "description": "Helps understand your long-term career aspirations and fit with the company's trajectory.",
+        "example": "In five years, I aim to be leading projects and mentoring new team members while continuing to advance my technical skills."
+    },
+    {
+        "title": "Why did you leave your last job?",
+        "type": "Career History",
+        "description": "Provides insight into your career decisions and motivations.",
+        "example": "I left my last job to seek new challenges and opportunities for growth that align more closely with my career goals."
+    },
+    {
+        "title": "How do you stay updated with industry trends and developments?",
+        "type": "Professional Development",
+        "description": "Assesses your commitment to continuous learning and staying current in your field.",
+        "example": "I regularly read industry blogs, attend webinars, and participate in professional networks to stay informed about the latest trends and technologies."
+    }
+]
